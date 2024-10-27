@@ -10,6 +10,8 @@ SoundWave is a real-time audio processing pipeline that ingests audio streams fr
 ### Table of Contents
 
 1. [Project Features](README#project-features)
+2. [Setup](README#Setup)
+
 
 
 
@@ -20,3 +22,21 @@ SoundWave is a real-time audio processing pipeline that ingests audio streams fr
 - Noise Reduction: Enhances audio quality by filtering background noise.
 - Signal Mixing: Merges audio from multiple producers into a unified stream.
 - Data Redundancy: Ensures reliable data storage with backup and fault tolerance.
+
+### Setup
+
+install kafka from (insert link) <br>
+open the folder in terminal and type
+
+```
+bin/zookeeper-server-start.sh config/zookeeper.properties
+bin/kafka-server-start.sh config/server.properties	
+```
+
+**Note: KVR**
+
+however check zookeeper.properties and server.properties. there has to be some changes for sure.
+For one,
+> the broker id is fixed as 0 in one of the above and in the take-home's docker-compose.yaml we had broker id as 1 however each broker is supposed to have unique id.
+
+well update this part, once you get an idea. thanks.
