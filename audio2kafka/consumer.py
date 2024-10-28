@@ -1,42 +1,53 @@
-from kafka import KafkaConsumer
-import numpy as np
-import sounddevice as sd
+from confluent_kafka import Consumer, KafkaError
 import wave
 
-KAFKA_BROKER = 'localhost:9092'
-TOPIC = 'audio2kafka'
 
-SAMPLE_RATE = 44100  # Hz
-CHANNELS = 1  # Mono audio
+def consume_audio(
+    topic="audio_topic",
+    kafka_server="localhost:9092",
+    output_filename="received_audio.wav",
+    sample_rate=44100,
+    channels=2,
+):
+    # Configure the consumer
+    consumer = Consumer(
+        {
+            "bootstrap.servers": kafka_server,
+            "group.id": "audio_consumer_group",
+            "auto.offset.reset": "earliest",
+        }
+    )
+    consumer.subscribe([topic])
 
-consumer = KafkaConsumer(
-    TOPIC,
-    bootstrap_servers=KAFKA_BROKER,
-    auto_offset_reset='earliest',
-    enable_auto_commit=True
-)
+    # Set up WAV file output
+    with wave.open(output_filename, "wb") as wf:
+        wf.setnchannels(channels)
+        wf.setsampwidth(2)  # 16-bit audio
+        wf.setframerate(sample_rate)
 
-def save_audio(data, filename='received_audio.wav'):
-    with wave.open(filename, 'wb') as wf:
-        wf.setnchannels(CHANNELS)
-        wf.setsampwidth(2)  # 2 bytes for int16 format
-        wf.setframerate(SAMPLE_RATE)
-        wf.writeframes(data)
+        print("Consuming audio data... Press Ctrl+C to stop.")
+        try:
+            while True:
+                msg = consumer.poll(1.0)  # Wait up to 1 second for a message
 
-audio_data = b''
-print("Consuming and playing audio...")
+                if msg is None:
+                    continue  # No message
+                if msg.error():
+                    if msg.error().code() == KafkaError._PARTITION_EOF:
+                        print("End of partition reached")
+                    else:
+                        print("Error:", msg.error())
+                    continue
 
-for message in consumer:
-    audio_chunk = message.value
-    audio_data += audio_chunk
+                # Write received audio chunk to the WAV file
+                wf.writeframes(msg.value())
 
-    audio_array = np.frombuffer(audio_chunk, dtype=np.int16)
+        except KeyboardInterrupt:
+            print("Stopping consumer...")
 
-    sd.play(audio_array, samplerate=SAMPLE_RATE)
-    sd.wait()
+    consumer.close()
+    print(f"Audio received and saved to {output_filename}")
 
-    if len(audio_data) >= SAMPLE_RATE * 2 * 10:
-        break
 
-save_audio(audio_data, 'records/received_audio.wav')
-print("Audio saved to received_audio.wav")
+# Run the consumer to receive audio and save it to a file
+consume_audio()
