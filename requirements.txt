@@ -1,6 +1,5 @@
 cffi==1.17.1
-kafka-python-ng==2.2.3
-numpy==2.1.2
+confluent-kafka==2.6.0
 pycparser==2.22
-six==1.16.0
+pyflink==1.0
 sounddevice==0.5.1
