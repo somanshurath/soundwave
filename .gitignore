@@ -1,6 +1,6 @@
 # Pycharm (audio2kafka)
 .idea/
-recordings/
+*.wav
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
