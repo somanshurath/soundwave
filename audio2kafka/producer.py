@@ -1,6 +1,9 @@
-import sounddevice as sd
 from confluent_kafka import Producer
+import sounddevice as sd
 import time
+import socket
+import threading
+import sys
 
 # Kafka configuration
 KAFKA_SERVER = "localhost:9092"
@@ -8,59 +11,98 @@ KAFKA_TOPIC = "raw_audio"
 SAMPLE_RATE = 44100
 CHANNELS = 2
 CHUNK_SIZE = 1024
-MAX_DURATION = 30
 
 
-def delivery_report(err, msg, num):
+def spinner():
+    spinner_frames = ["|", "/", "-", "\\"]
+    idx = 0
+    while True:
+        sys.stdout.write(
+            "\r" + spinner_frames[idx % len(spinner_frames)] + " Recording audio data...")
+        sys.stdout.flush()
+        idx += 1
+        time.sleep(0.1)
+
+
+def check_kafka_server(server):
+    host, port = server.split(":")
+    try:
+        socket.create_connection((host, int(port)), timeout=5)
+        return True
+    except (socket.timeout, ConnectionRefusedError, socket.gaierror):
+        return False
+
+
+# Check if Kafka server is available
+if not check_kafka_server(KAFKA_SERVER):
+    print(
+        f"Kafka server at {KAFKA_SERVER} is not available. Please check:\n 1. Kafka server is running\n 2. Kafka server address is correct\nTry again after resolving issues."
+    )
+    exit(1)
+else:
+    print(f"Kafka server at {KAFKA_SERVER} up and running")
+
+
+# Initialize the Kafka producer
+producer = Producer({"bootstrap.servers": KAFKA_SERVER})
+
+
+def delivery_report(err, num):
     if err is not None:
         print(f"Message delivery failed: {err}")
-    else:
-        print(
-            f"Message (Chunk {num}) delivered to {msg.topic()} [{msg.partition()}]")
 
 
-def produce_audio(
-    topic=KAFKA_TOPIC,
-    kafka_server=KAFKA_SERVER,
-    sample_rate=SAMPLE_RATE,
-    channels=CHANNELS,
-    duration=MAX_DURATION,
-    chunk_size=CHUNK_SIZE,
-):
-    producer = Producer({"bootstrap.servers": kafka_server})
+# Global variable to keep track of the number of chunks sent
+chunk_counter = 0
 
-    print("Recording audio data... Press Ctrl+C to stop.")
+
+def audio_callback(indata, frames, time_info, status):
+    global chunk_counter
+    if status:
+        print(status)
+    # Convert the audio chunk to bytes
+    chunk = indata.tobytes()
+
     try:
-        audio = sd.rec(
-            int(duration * sample_rate), samplerate=sample_rate, channels=channels, dtype="int16"
+        # Send the chunk to Kafka
+        producer.produce(
+            KAFKA_TOPIC,
+            value=chunk,
+            callback=lambda err, _: delivery_report(err, chunk_counter),
         )
-        sd.wait()
-    except KeyboardInterrupt:
-        print("Stopping producer...")
-    except Exception as e:
-        print(f"An error occurred during recording: {e}")
+        chunk_counter += 1
+        producer.poll(0)  # Non-blocking poll to serve delivery reports
+    except BufferError as e:
+        print(f"\nProducer buffer full, retrying: {e}\n")
+        producer.poll(1)  # Blocking poll until buffer has space
 
-    # Stream audio data to Kafka in chunks
-    audio_bytes = audio.tobytes()
-    for i in range(0, len(audio_bytes), chunk_size):
-        chunk = audio_bytes[i: i + chunk_size]
-        try:
-            producer.produce(topic, value=chunk, callback=delivery_report(
-                num=(i // chunk_size + 1)))
-            producer.poll(0)
-            time.sleep(0.01)
-        except BufferError as e:
-            print(f"Producer buffer full, retrying: {e}")
-            producer.poll(1)
-        except Exception as e:
-            print(f"Error while producing message to Kafka: {e}")
+
+def produce_audio_realtime():
+    print("Press Ctrl+C to stop recording audio data")
+
+    spinner_thread = threading.Thread(target=spinner)
+    spinner_thread.daemon = True
+    spinner_thread.start()
 
     try:
-        producer.flush()
-        print("Recording sent to Kafka topic:", topic)
-    except Exception as e:
-        print(f"Error while flushing producer: {e}")
+        with sd.InputStream(
+            samplerate=SAMPLE_RATE,
+            channels=CHANNELS,
+            dtype="int16",
+            callback=audio_callback,
+        ):
+            while True:
+                time.sleep(0.1)
+    except KeyboardInterrupt:
+        print("\nInterrupt raised. Stopping producer...")
+    finally:
+        sd.stop()
+        try:
+            producer.flush()
+            print("\nRemaining messages flushed to Kafka cluster.\nClosing producer...")
+        except Exception as e:
+            print(f"\nAn error occurred in closing the producer: {e}")
 
 
 if __name__ == "__main__":
-    produce_audio()
+    produce_audio_realtime()
