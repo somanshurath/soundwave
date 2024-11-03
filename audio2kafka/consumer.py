@@ -12,7 +12,7 @@ KAFKA_TOPIC = "raw_audio"
 SAMPLE_RATE = 44100
 CHANNELS = 2
 OUTPUT_FILENAME = "received_audio.wav"
-IDLE_TIMEOUT = 1  # Time in seconds to wait before closing if no messages are received
+IDLE_TIMEOUT = 5  # Time in seconds to wait before closing if no messages are received (as of now)
 
 
 def spinner():
@@ -100,7 +100,7 @@ def consume_audio(
                         print("\nKafka error: unknown topic or partition. Exiting.")
                         exit(1)
                     else:
-                        print("\Kafka error: ", msg.error().str())
+                        print("\nKafka error: ", msg.error().str())
                         exit(1)
                     continue
 
