@@ -10,7 +10,8 @@ SoundWave is a real-time audio processing pipeline that ingests audio streams fr
 ### Table of Contents
 
 1. [Project Features](README#project-features)
-2. [Setup](README#Setup)
+2. [Kafka Setup](README#kafka-setup)
+3. [Flink Setup](README#flink-setup)
 
 
 
@@ -23,20 +24,20 @@ SoundWave is a real-time audio processing pipeline that ingests audio streams fr
 - Signal Mixing: Merges audio from multiple producers into a unified stream.
 - Data Redundancy: Ensures reliable data storage with backup and fault tolerance.
 
-### Setup
+### Kafka Setup
 
-install kafka from (insert link) <br>
-open the folder in terminal and type
-
+download the latest kafka release and extract it from here [here](https://www.apache.org/dyn/closer.cgi?path=/kafka/3.8.1/kafka_2.13-3.8.1.tgz) <br>
+``` bash
+tar -xzf kafka_2.13-3.8.1.tgz
+cd kafka_2.13-3.8.1
 ```
+run the following commands in separate sessions in order to start all services in the correct order:
+
+``` bash
 bin/zookeeper-server-start.sh config/zookeeper.properties
 bin/kafka-server-start.sh config/server.properties	
 ```
+now, your kafka server is up and running.
 
-**Note: KVR**
-
-however check zookeeper.properties and server.properties. there has to be some changes for sure.
-For one,
-> the broker id is fixed as 0 in one of the above and in the take-home's docker-compose.yaml we had broker id as 1 however each broker is supposed to have unique id.
-
-well update this part, once you get an idea. thanks.
+### Flink Setup
+(tbd)
