@@ -4,13 +4,16 @@ import time
 import socket
 import threading
 import sys
+import configparser
 
-# Kafka configuration
-KAFKA_SERVER = "localhost:9092"
-KAFKA_TOPIC = "raw_audio"
-SAMPLE_RATE = 44100
-CHANNELS = 2
-CHUNK_SIZE = 1024
+config = configparser.ConfigParser()
+config.read('./producer.properties')
+
+KAFKA_SERVER = config.get('producer', 'bootstrap.servers')
+KAFKA_TOPIC = config.get('producer', 'topic')
+SAMPLE_RATE = config.getint('producer', 'sample.rate')
+CHANNELS = config.getint('producer', 'channels')
+CHUNK_SIZE = config.getint('producer', 'chunk.size')
 
 
 def spinner():
