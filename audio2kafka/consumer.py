@@ -6,12 +6,12 @@ import socket
 import threading
 import sys
 
-# Kafka configuration
+# Kafka configuration (change as needed)
 KAFKA_SERVER = "localhost:9092"
-KAFKA_TOPIC = "raw_audio"
+KAFKA_TOPIC = "librosa_audio"
 SAMPLE_RATE = 44100
 CHANNELS = 2
-OUTPUT_FILENAME = "received_audio.wav"
+OUTPUT_FILENAME = "librosa_audio.wav"
 IDLE_TIMEOUT = 5  # Time in seconds to wait before closing if no messages are received (as of now)
 
 

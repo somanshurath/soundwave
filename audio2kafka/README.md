@@ -20,11 +20,29 @@ bin/zookeeper-server-start.sh config/zookeeper.properties
 bin/kafka-server-start.sh config/server.properties
 ```
 
-### Create the topic
+### Start the producer
+Open the project in a new terminal and run the following commans to start the producer. <br>
 ```
-bin/kafka-topics.sh --bootstrap-server localhost:9092 --create --topic audio2kafka --partitions 1 --replication-factor 1
+cd audio2kafka
+python3 producer.py
 ```
-### Delete the topic
+This creates a new topic `raw_audio` and the producer will start sending audio files to the Kafka server. Press `Ctrl+C` to stop the producer.
+
+### Start the consumer
 ```
-bin/kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic audio2kafka
+python3 consumer.py
 ```
+### Start the consumer with audio processing
+Currently, audioProcessor/pitchShift.py is used to process the audio files to change the pitch. <br>
+```
+cd ../audioProcessor
+python3 pitchShift.py
+```
+This creates a new topic `librosa_audio` and sends the processed audio files to this topic. <br>
+
+### Start the consumer to listen to the processed audio
+```
+cd ../audio2kafka
+python3 consumer.py
+```
+This will listen to the `librosa_audio` topic and save the processed audio files in the `audio2kafka/processed_audio` directory as a .wav file. <br>
