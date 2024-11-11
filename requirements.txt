@@ -1,5 +1,0 @@
-cffi==1.17.1
-confluent-kafka==2.6.0
-pycparser==2.22
-pyflink==1.0
-sounddevice==0.5.1
