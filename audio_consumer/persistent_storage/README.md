@@ -1,0 +1,2 @@
+# Persistent Storage for Audio Consumer
+This directory contains the persistent storage for the audio consumer. The audio consumer is responsible for consuming audio data from the audio producer and storing it in the persistent storage. The audio consumer is implemented in Python and the persistent storage is implemented using docker.
