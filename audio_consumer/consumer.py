@@ -47,6 +47,55 @@ if not check_kafka_server(KAFKA_SERVER):
 else:
     print(f"Kafka server at {KAFKA_SERVER} up and running")
 
+def send_instruction_to_server(server, instruction):
+    """Send an instruction to the storage server over a socket"""
+    try:
+        host, port = server.split(":")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((host, int(port)))
+            s.sendall(instruction.encode())
+            data = s.recv(1024)
+            return data.decode()  # Return the response from the storage server
+    except Exception as e:
+        print(f"Error sending instruction to {server}: {e}")
+        return None
+
+
+def store_and_replicate_audio(data, filename): #this code is very wrong, i will correct this, but its gonna be a pain in the ass
+    """ Store the audio data in the first container and replicate it to the second container """
+    
+    primary_server = STORAGE_SERVERS[0]
+    backup_servers = STORAGE_SERVERS[1:]
+
+    # Store the file on the primary storage server (docker container)
+    instruction = f"STORE {filename}"
+    response = send_instruction_to_server(primary_server, instruction)
+    if response == "SUCCESS":
+        print(f"File {filename} stored on primary server: {primary_server}")
+    else:
+        print(f"Failed to store file {filename} on primary server: {primary_server}")
+        return
+
+    # Write data to the primary server container
+    primary_storage_path = f"/mnt/storage/{filename}"
+    with open(primary_storage_path, "wb") as f:
+        f.write(data)
+
+    # Replicate the file to backup servers (docker containers)
+    for server in backup_servers:
+        instruction = f"REPLICATE {filename}"
+        response = send_instruction_to_server(server, instruction)
+        if response == "SUCCESS":
+            print(f"File {filename} replicated to {server}")
+        else:
+            print(f"Failed to replicate file {filename} to {server}")
+
+        # Simulate replication (in real scenario, this can be a network copy or similar)
+        backup_storage_path = f"/mnt/storage/{filename}"
+        shutil.copy(primary_storage_path, backup_storage_path)
+
+#take retreive lite for now
+
 
 def consume_audio(
     topic=KAFKA_TOPIC,
