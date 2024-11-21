@@ -26,7 +26,7 @@ def handle_client_connection(client_socket):
         file_exists = os.path.exists(file_path)
         
         # Open the file to write data (or append)
-        with wave.open(file_path, "ab" if file_exists else "wb") as wf:
+        with wave.open(file_path, 'wb') as wf:
             # Set properties (ensure these values are passed or defined)
             channels = 1           # Example value, should be set as needed
             sample_rate = 44100    # Example value, should be set as needed
@@ -38,7 +38,7 @@ def handle_client_connection(client_socket):
             
             # Write the received data (audio) into the file
             wf.writeframes(data)
-            client_socket.sendall(b"Data successfully stored.")
+            client_socket.sendall(b"SUCCESS")
 
     except Exception as e:
         print(f"Error handling client connection: {e}")
@@ -69,4 +69,4 @@ def start_storage_server(host, port):
 
 
 if __name__ == "__main__":
-    start_storage_server("127.0.0.1", 5000)  # Adjust the IP and port as needed
+    start_storage_server("172.17.0.2", 5000)  # Adjust the IP and port as needed
