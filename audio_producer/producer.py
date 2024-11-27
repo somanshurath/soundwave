@@ -1,3 +1,4 @@
+from typing import ChainMap
 from confluent_kafka import Producer
 import sounddevice as sd
 import time
@@ -6,27 +7,33 @@ import threading
 import sys
 import configparser
 
+# Load configuration from properties file
 config = configparser.ConfigParser()
-config.read('./producer.properties')
+config.read("./producer.properties")
 
-KAFKA_SERVER = config.get('producer', 'bootstrap.servers')
-KAFKA_TOPIC = config.get('producer', 'topic')
-SAMPLE_RATE = config.getint('producer', 'sample.rate')
-CHANNELS = config.getint('producer', 'channels')
-CHUNK_SIZE = config.getint('producer', 'chunk.size')
+KAFKA_SERVER = config.get("producer", "bootstrap.servers")
+KAFKA_TOPIC = config.get("producer", "topic")
+SAMPLE_RATE = config.getint("producer", "sample.rate")
+CHANNELS = config.getint("producer", "channels")
+CHUNK_SIZE = config.getint("producer", "chunk.size")
 
 
+# Function to display a spinner animation
 def spinner():
     spinner_frames = ["|", "/", "-", "\\"]
     idx = 0
     while True:
         sys.stdout.write(
-            "\r" + spinner_frames[idx % len(spinner_frames)] + " Recording audio data...")
+            "\r"
+            + spinner_frames[idx % len(spinner_frames)]
+            + " Recording audio data..."
+        )
         sys.stdout.flush()
         idx += 1
         time.sleep(0.1)
 
 
+# Function to check if the Kafka server is reachable
 def check_kafka_server(server):
     host, port = server.split(":")
     try:
@@ -45,41 +52,49 @@ if not check_kafka_server(KAFKA_SERVER):
 else:
     print(f"Kafka server at {KAFKA_SERVER} up and running")
 
-
 # Initialize the Kafka producer
 producer = Producer({"bootstrap.servers": KAFKA_SERVER})
 
 
+# Function to handle delivery reports from the producer
 def delivery_report(err, num):
     if err is not None:
         print(f"Message delivery failed: {err}")
 
 
-# Global variable to keep track of the number of chunks sent
+# Global variables
 chunk_counter = 0
+audio_buffer = bytearray()  # Buffer to accumulate audio data
 
 
+# Callback function for the audio stream
 def audio_callback(indata, frames, time_info, status):
-    global chunk_counter
+    global chunk_counter, audio_buffer
     if status:
         print(status)
-    # Convert the audio chunk to bytes
+
+    # Convert the audio chunk to bytes and add to the buffer
     chunk = indata.tobytes()
+    audio_buffer.extend(chunk)
 
-    try:
-        # Send the chunk to Kafka
-        producer.produce(
-            KAFKA_TOPIC,
-            value=chunk,
-            callback=lambda err, _: delivery_report(err, chunk_counter),
-        )
-        chunk_counter += 1
-        producer.poll(0)  # Non-blocking poll to serve delivery reports
-    except BufferError as e:
-        print(f"\nProducer buffer full, retrying: {e}\n")
-        producer.poll(1)  # Blocking poll until buffer has space
+    while len(audio_buffer) >= SAMPLE_RATE * CHANNELS * 2:
+        try:
+            producer.produce(
+                KAFKA_TOPIC,
+                value=bytes(audio_buffer),
+                callback=lambda err, _: delivery_report(err, chunk_counter),
+            )
+            chunk_counter += 1
+            producer.poll(0)  # Non-blocking poll to serve delivery reports
+
+            # Remove the sent bytes from the buffer
+            audio_buffer.clear()
+        except BufferError as e:
+            print(f"\nProducer buffer full, retrying: {e}\n")
+            producer.poll(1)  # Blocking poll until buffer has space
 
 
+# Main function to produce audio data in real-time
 def produce_audio_realtime():
     print("Press Ctrl+C to stop recording audio data")
 
@@ -107,5 +122,6 @@ def produce_audio_realtime():
             print(f"\nAn error occurred in closing the producer: {e}")
 
 
+# Run the program
 if __name__ == "__main__":
     produce_audio_realtime()

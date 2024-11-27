@@ -23,7 +23,10 @@ def spinner():
     idx = 0
     while True:
         sys.stdout.write(
-            "\r" + spinner_frames[idx % len(spinner_frames)] + " Consuming audio data...")
+            "\r"
+            + spinner_frames[idx % len(spinner_frames)]
+            + " Consuming audio data..."
+        )
         sys.stdout.flush()
         idx += 1
         time.sleep(0.1)
@@ -109,6 +112,7 @@ def consume_audio(
 
                 last_message_time = time.time()
                 audio_chunk = msg.value()
+                print(len(audio_chunk))
                 wf.writeframes(audio_chunk)
 
         except KeyboardInterrupt:
