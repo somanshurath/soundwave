@@ -13,8 +13,11 @@ import io
 import librosa
 import numpy as np
 import soundfile as sf
+import configparser
 
-# Configuration
+config = configparser.ConfigParser()
+config.read("./flink.properties")
+
 KAFKA_SERVER = "localhost:9092"
 RAW_AUDIO_TOPIC = "raw_audio"
 PROCESSED_AUDIO_TOPIC = "librosa_audio"
@@ -22,6 +25,8 @@ SAMPLE_RATE = 44100
 CHANNELS = 2
 SEMITONES = 2
 BUFFER_SIZE = SAMPLE_RATE * CHANNELS * 2  # The threshold for enough data to process
+FLINK_SQL_CONNECTOR_JAR = config.get("flink", "flink.sql.connector.jar")
+FLINK_BYTE_ARRAY_SERDE_JAR = config.get("flink", "flink.byte.array.serde.jar")
 
 
 # ByteArray Deserializer
@@ -76,8 +81,8 @@ def process_audio(audio_chunk):
 def main():
     env = StreamExecutionEnvironment.get_execution_environment()
     env.add_jars(
-        "file:///home/lordminion666/Downloads/flink-sql-connector-kafka-3.3.0-1.20.jar",
-        "file:///home/lordminion666/Desktop/DSTN/soundwave/audio_processor/flink-bytearray-serdes-1.0-SNAPSHOT.jar",
+        FLINK_SQL_CONNECTOR_JAR,
+        FLINK_BYTE_ARRAY_SERDE_JAR,
     )
 
     # Set up Kafka consumer
