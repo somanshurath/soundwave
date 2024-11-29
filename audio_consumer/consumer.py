@@ -112,7 +112,7 @@ def consume_audio(
 
                 last_message_time = time.time()
                 audio_chunk = msg.value()
-                print(len(audio_chunk))
+                #print(len(audio_chunk))
                 wf.writeframes(audio_chunk)
 
         except KeyboardInterrupt:

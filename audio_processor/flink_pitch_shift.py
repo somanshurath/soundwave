@@ -18,12 +18,12 @@ import configparser
 config = configparser.ConfigParser()
 config.read("./flink.properties")
 
-KAFKA_SERVER = "localhost:9092"
-RAW_AUDIO_TOPIC = "raw_audio"
-PROCESSED_AUDIO_TOPIC = "librosa_audio"
-SAMPLE_RATE = 44100
-CHANNELS = 2
-SEMITONES = 2
+KAFKA_SERVER = config.get("flink", "bootstrap.servers")
+RAW_AUDIO_TOPIC = config.get("flink", "raw.audio.topic")
+PROCESSED_AUDIO_TOPIC = config.get("flink", "processed.audio.topic")
+SAMPLE_RATE = config.getint("flink", "sample.rate")
+CHANNELS = config.getint("flink", "channels")
+SEMITONES = config.getint("flink", "semitones")
 BUFFER_SIZE = SAMPLE_RATE * CHANNELS * 2  # The threshold for enough data to process
 FLINK_SQL_CONNECTOR_JAR = config.get("flink", "flink.sql.connector.jar")
 FLINK_BYTE_ARRAY_SERDE_JAR = config.get("flink", "flink.byte.array.serde.jar")
@@ -63,9 +63,8 @@ class ByteArraySerializer(SerializationSchema):
 def raise_pitch(audio_chunk, sample_rate=SAMPLE_RATE, semitones=SEMITONES):
     y = np.frombuffer(audio_chunk, dtype=np.int16)
     y = y.astype(np.float32) / 32768.0
-    n_fft = 256
     y_shifted = librosa.effects.pitch_shift(
-        y, sr=sample_rate, n_steps=semitones, n_fft=n_fft
+        y, sr=sample_rate, n_steps=semitones
     )
     y_shifted = np.int16(y_shifted * 32768)
     output = io.BytesIO()
