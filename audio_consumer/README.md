@@ -8,7 +8,7 @@ The configuration for the consumer is stored in a `consumer.properties` file. Be
 
 ```properties
 [consumer]
-bootstrap.servers=localhost:9092
+bootstrap.servers=10.70.14.81:9092
 topic=raw_audio
 sample.rate=44100
 channels=2
@@ -56,3 +56,6 @@ idle.timeout=5
 - `confluent_kafka`
 - `sounddevice`
 - `configparser`
+
+<br>
+Back to [main readme](../README.md).

@@ -8,7 +8,7 @@ The configuration for the producer is stored in a `producer.properties` file. Be
 
 ```properties
 [producer]
-bootstrap.servers=localhost:9092
+bootstrap.servers=10.70.14.81:9092
 topic=raw_audio
 sample.rate=44100
 channels=2
@@ -47,3 +47,6 @@ Press `Ctrl+C` to stop the audio recording and gracefully shut down the producer
 - `confluent_kafka`
 - `sounddevice`
 - `configparser`
+
+<br>
+Back to [main readme](../README.md).

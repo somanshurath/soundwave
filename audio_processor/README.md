@@ -12,5 +12,5 @@ The `pitch_shift.py` script reads raw audio data from a Kafka topic (default: `r
 python3 pitch_shift.py
 ```
 
+<br>
 Back to [main readme](../README.md).
-

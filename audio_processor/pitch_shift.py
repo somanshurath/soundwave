@@ -6,7 +6,7 @@ import socket
 import soundfile as sf
 
 # Kafka configuration
-KAFKA_SERVER = "localhost:9092"
+KAFKA_SERVER = "10.70.14.81:9092"
 RAW_AUDIO_TOPIC = "raw_audio"
 PROCESSED_AUDIO_TOPIC = "librosa_audio"
 SAMPLE_RATE = 44100
