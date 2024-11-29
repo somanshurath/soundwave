@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>File Transfer Portal</title>
+        <link
+            rel="icon"
+            href="{{ url_for('static', filename='audio-waves.png') }}"
+        />
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='styles.css') }}"
+        />
+    </head>
+    <body>
+        <div class="container">
+            <h1>
+                <img
+                    src="{{ url_for('static', filename='audio-waves.png') }}"
+                    class="small-image"
+                />
+                Soundwave
+            </h1>
+            <div class="main-content">
+                <div class="upload-section">
+                    <h2>Record Audio</h2>
+                    
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
