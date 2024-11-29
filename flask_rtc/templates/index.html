@@ -13,6 +13,7 @@
             href="{{ url_for('static', filename='styles.css') }}"
         />
     </head>
+
     <body>
         <div class="container">
             <h1>
@@ -22,12 +23,58 @@
                 />
                 Soundwave
             </h1>
-            <div class="main-content">
-                <div class="upload-section">
-                    <h2>Record Audio</h2>
-                    
+            {% if not is_recording %}
+            <div>
+                <h2>Record Audio</h2>
+                <div class="upload-form">
+                    <img
+                        src="{{ url_for('static', filename='start.png') }}"
+                        class="record-image"
+                        id="record-start-button"
+                    />
                 </div>
             </div>
+            {% else %}
+            <div>
+                <h2>Stop Recording</h2>
+                <div class="upload-form">
+                    <img
+                        src="{{ url_for('static', filename='stop.png') }}"
+                        class="record-image"
+                        id="record-stop-button"
+                        onclick="is_recording = false"
+                    />
+                </div>
+            </div>
+            {% endif %}
         </div>
+        <script>
+            document
+                .getElementById('record-start-button')
+                .addEventListener('click', function () {
+                    is_recording = true;
+                    fetch('/start-recording', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }).catch((error) => {
+                        console.error('Error:', error);
+                    });
+                });
+
+            document
+                .getElementById('record-stop-button')
+                .addEventListener('click', function () {
+                    fetch('/stop-recording', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    }).catch((error) => {
+                        console.error('Error:', error);
+                    });
+                });
+        </script>
     </body>
 </html>
