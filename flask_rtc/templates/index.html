@@ -16,7 +16,7 @@
 
     <body>
         <div class="container">
-            <h1>
+            <h1 style="margin-right: 20px;">
                 <img
                     src="{{ url_for('static', filename='audio-waves.png') }}"
                     class="small-image"
@@ -39,10 +39,10 @@
                     />
                 </div>
             </div>
-            <div id="rtc">
+            <div id="rtc" style="display: none">
                 <h2 id="inp-title">Realtime Audio Caption</h2>
-                <div>
-                    <pre id="caption-text"></pre>
+                <div class="rtc-section">
+                    <p id="caption-text"></p>
                 </div>
             </div>
         </div>
@@ -92,6 +92,8 @@
                             document.getElementById('inp-title').innerText =
                                 'Record Audio';
                             stopFetchingCaption();
+                            document.getElementById('rtc').style.display =
+                                'none';
                         })
                         .catch((error) => {
                             console.error('Error:', error);

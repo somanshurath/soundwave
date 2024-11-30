@@ -37,6 +37,9 @@ def start_recording():
 def stop_recording():
     try:
         subprocess.Popen(["pkill", "-2", "-f", "producer.py"])
+        # delete the caption file content
+        # with open(CAPTION_FILE, "w") as clipboard:
+        #     clipboard.truncate(0)
         return jsonify({"status": "success", "message": "Recording stopped."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})

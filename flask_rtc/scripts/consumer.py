@@ -60,7 +60,7 @@ else:
             {
                 "bootstrap.servers": kafka_server,
                 "group.id": "text_consumer_group",
-                "auto.offset.reset": "earliest",
+                "auto.offset.reset": "latest",
                 "enable.auto.commit": True,  # Auto commit offsets (for now)
             }
         )
@@ -74,8 +74,6 @@ else:
 
         # Open the file to write the received text data
         with open(output_filename, "w", encoding="utf-8") as f:
-            last_message_time = time.time()
-
             print("Press Ctrl+C to stop consuming text data")
 
             spinner_thread = threading.Thread(target=spinner)
@@ -84,12 +82,6 @@ else:
 
             try:
                 while True:
-                    if time.time() - last_message_time > idle_timeout:
-                        print(
-                            f"\nNo messages received for {idle_timeout} seconds. Closing consumer"
-                        )
-                        break
-
                     msg = consumer.poll(1.0)
 
                     if msg is None:
@@ -106,10 +98,10 @@ else:
                             exit(1)
                         continue
 
-                    last_message_time = time.time()
                     text_chunk = msg.value().decode("utf-8")
-                    f.write(text_chunk + " ")
-                    f.flush()
+                    if text_chunk != "":
+                        f.write(text_chunk + " ")
+                        f.flush()
 
             except KeyboardInterrupt:
                 print("\nInterrupt raised. Closing consumer...")
