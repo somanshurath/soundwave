@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PP-Soundwave</title>
+        <link
+            rel="icon"
+            href="{{ url_for('static', filename='audio-waves.png') }}"
+        />
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='styles.css') }}"
+        />
+    </head>
+
+    <body>
+        <div class="container">
+            <h1 style="margin-right: 20px; margin-top: 50px;">
+                <img
+                    src="{{ url_for('static', filename='audio-waves.png') }}"
+                    class="small-image"
+                />
+                Soundwave PP
+            </h1>
+            <div>
+                <h2 id="inp-title">Recorded Audio</h2>
+                <div>
+                    {% if files | length != 0 %}
+                    <ul>
+                        {% for filename in files %}
+                        <li>
+                            <div class="btns">
+                                {{ filename }}
+                                <!-- <a href="/copy/{{ text }}">
+                                    <button>Copy</button>
+                                </a> -->
+                                <a href="/delete-text/{{ text }}">
+                                    <button>Transcribe</button>
+                                </a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p>Oops! No files available.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="rtc" style="display: none">
+                <h2 id="inp-title">Realtime Audio Caption</h2>
+                <div class="rtc-section">
+                    <p id="caption-text"></p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

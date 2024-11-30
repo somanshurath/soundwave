@@ -35,6 +35,28 @@ def is_file_present(server_name, filename):
         return True
     except subprocess.CalledProcessError:
         return False
+    
+@app.route('/get_file_list', methods=['GET'])
+def get_file_list():
+    """
+    Endpoint to fetch a list of files from the storage servers.
+    """
+    files = []
+    for server in STORAGE_SERVERS:
+        if is_server_running(server):
+            app.logger.info(f"{server} is online checking for files")
+            try:
+                result = subprocess.run(
+                    ["sudo", "docker", "exec", server, "ls", FILE_PATH],
+                    capture_output=True, text=True, check=True
+                )
+                files.extend(result.stdout.strip().split("\n"))
+            except subprocess.CalledProcessError:
+                app.logger.error(f"Failed to get files from {server}")
+        else:
+            app.logger.info(f"{server} is not running.")
+
+    return jsonify({"files": files})
 
 @app.route('/get_file', methods=['GET'])
 def get_file():
