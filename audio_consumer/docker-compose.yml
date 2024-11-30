@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  glusterfs1:
+    build: .
+    container_name: glusterfs1
+    volumes:
+      - ~/Documents/gluster/gluster1:/gluster/brick/data  # Using Docker volume
+    networks:
+      - gluster-net
+    ports:
+      - "24007:24007"
+      - "24008:24008"
+      - "24009:24009"
+      - "49152:49152"
+    restart: always
+    privileged: true
+
+  glusterfs2:
+    build: .
+    container_name: glusterfs2
+    volumes:
+      - ~/Documents/gluster/gluster2:/gluster/brick/data  # Using Docker volume
+    networks:
+      - gluster-net
+    restart: always
+    privileged: true
+
+  glusterfs3:
+    build: .
+    container_name: glusterfs3
+    volumes:
+      - ~/Documents/gluster/gluster3:/gluster/brick/data  # Using Docker volume
+    networks:
+      - gluster-net
+    restart: always
+    privileged: true
+
+volumes:
+  glusterfs1-data:
+  glusterfs2-data:
+  glusterfs3-data:
+
+networks:
+  gluster-net:
+    driver: bridge
+
