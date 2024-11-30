@@ -21,7 +21,7 @@ SoundWave is a real-time audio processing pipeline that ingests audio streams fr
 
 ## Architecture
 
-<img src="soundwave.svg" alt="Description of SVG" width="100%" />
+<img src="assets/soundwave.svg" alt="Description of SVG" width="100%" />
 
 ## Audio Processing
 
