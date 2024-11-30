@@ -42,11 +42,14 @@ def speech_to_text(audio_file):
         text = r.recognize_google(audio)
         return text
     except sr.UnknownValueError:
-        return "Google Speech Recognition could not understand the audio"
+        # return "Google Speech Recognition could not understand the audio"
+        return "."
     except sr.RequestError as e:
-        return f"Could not request results from Google Speech Recognition service; {e}"
+        # return f"Could not request results from Google Speech Recognition service; {e}"
+        return "."
     except Exception as e:
-        return f"An error occurred during speech recognition; {e}"
+        # return f"An error occurred during speech recognition; {e}"
+        return "."
 
 
 def process_audio_buffer(audio_buffer):
@@ -69,8 +72,8 @@ def stream_audio__caption():
     consumer = Consumer({
         "bootstrap.servers": KAFKA_SERVER,
         "group.id": "audio_processing_group",
-        "auto.offset.reset": "earliest",
-        "enable.auto.commit": False,
+        "auto.offset.reset": "latest",
+        "enable.auto.commit": True,
     })
     producer = Producer({"bootstrap.servers": KAFKA_SERVER})
 
