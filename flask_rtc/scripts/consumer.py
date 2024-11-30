@@ -109,6 +109,7 @@ else:
                     last_message_time = time.time()
                     text_chunk = msg.value().decode("utf-8")
                     f.write(text_chunk + " ")
+                    f.flush()
 
             except KeyboardInterrupt:
                 print("\nInterrupt raised. Closing consumer...")

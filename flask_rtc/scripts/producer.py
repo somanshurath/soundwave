@@ -30,7 +30,7 @@ if not check_kafka_server(KAFKA_SERVER):
     )
     exit(1)
 else:
-    print(f"Kafka server at {KAFKA_SERVER} up and running")
+    print(f"Kafka server at {KAFKA_SERVER} up and running\nRecording audio...")
 
 # Initialize the Kafka producer
 producer = Producer({"bootstrap.servers": KAFKA_SERVER})

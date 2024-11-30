@@ -51,3 +51,7 @@ h1 {
 .record-image:hover {
     border-color: #ea458e;
 }
+
+#rtc {
+    margin-top: 80px;
+}
