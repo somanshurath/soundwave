@@ -7,7 +7,7 @@ import soundfile as sf
 import speech_recognition as sr
 
 # Kafka configuration
-KAFKA_SERVER = "10.30.12.77:9092"
+KAFKA_SERVER = "10.70.24.72:9092"
 RAW_AUDIO_TOPIC = "raw_audio"
 CAPTIONS_TOPIC = "rtc_text"
 SAMPLE_RATE = 44100

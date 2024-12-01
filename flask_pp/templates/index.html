@@ -16,7 +16,7 @@
 
     <body>
         <div class="container">
-            <h1 style="margin-right: 20px; margin-top: 50px;">
+            <h1 style="margin-right: 20px; margin-top: 50px">
                 <img
                     src="{{ url_for('static', filename='audio-waves.png') }}"
                     class="small-image"
@@ -26,25 +26,21 @@
             <div>
                 <h2 id="inp-title">Recorded Audio</h2>
                 <div>
-                    {% if files | length != 0 %}
                     <ul>
-                        {% for filename in files %}
+                        {% for file in files %}
                         <li>
-                            <div class="btns">
-                                {{ filename }}
-                                <!-- <a href="/copy/{{ text }}">
-                                    <button>Copy</button>
-                                </a> -->
-                                <a href="/delete-text/{{ text }}">
-                                    <button>Transcribe</button>
-                                </a>
-                            </div>
+                            {{ file }}
+                            <a href="/download-audio/{{file}}">
+                                <button>Download File</button>
+                            </a>
+                            <a href="/transcribe-audio/{{file}}">
+                                <button>Transcribe File</button>
+                            </a>
                         </li>
+                        {% else %}
+                        <li>No files available.</li>
                         {% endfor %}
                     </ul>
-                    {% else %}
-                    <p>Oops! No files available.</p>
-                    {% endif %}
                 </div>
             </div>
             <div id="rtc" style="display: none">
