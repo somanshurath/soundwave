@@ -9,6 +9,8 @@ STORAGE_SERVERS = ["glusterfs1", "glusterfs2", "glusterfs3"]
 
 # Base path for file storage in containers
 FILE_PATH = "/gluster/brick/data/"
+SENDING_FILE_PATH="/mnt/gluster/"
+
 
 def is_server_running(server_name):
     """
@@ -16,12 +18,14 @@ def is_server_running(server_name):
     """
     try:
         result = subprocess.run(
-            ["sudo", "docker", "inspect", "-f", "{{.State.Running}}", server_name],
+            ["sudo", "docker", "inspect", "-f",
+                "{{.State.Running}}", server_name],
             capture_output=True, text=True, check=True
         )
         return result.stdout.strip().lower() == "true"
     except subprocess.CalledProcessError:
         return False
+
 
 def is_file_present(server_name, filename):
     """
@@ -29,13 +33,15 @@ def is_file_present(server_name, filename):
     """
     try:
         subprocess.run(
-            ["sudo", "docker", "exec", server_name, "ls", f"{FILE_PATH}{filename}"],
+            ["sudo", "docker", "exec", server_name,
+                "ls", f"{FILE_PATH}{filename}"],
             capture_output=True, text=True, check=True
         )
         return True
     except subprocess.CalledProcessError:
         return False
-    
+
+
 @app.route('/get_file_list', methods=['GET'])
 def get_file_list():
     """
@@ -58,6 +64,7 @@ def get_file_list():
 
     return jsonify({"files": files})
 
+
 @app.route('/get_file', methods=['GET'])
 def get_file():
     """
@@ -73,13 +80,14 @@ def get_file():
             if is_file_present(server, filename):
                 print(f"Found {filename} and sending now")
                 try:
-                    return send_file(local_file_path, as_attachment=True)
+                    return send_file(FILE_PATH+filename, as_attachment=True)
                 except:
                     return jsonify({"error": "Failed to retrieve file"}), 500
         else:
             app.logger.info(f"{server} is not running.")
 
     return jsonify({"error": "File not found on any active server"}), 404
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

@@ -6,7 +6,7 @@ import socket
 import threading
 import sys
 
-KAFKA_SERVER = "10.30.12.77:9092"
+KAFKA_SERVER = "10.70.24.72:9092"
 KAFKA_TOPIC = "raw_audio"
 SAMPLE_RATE = 44100
 CHANNELS = 2
